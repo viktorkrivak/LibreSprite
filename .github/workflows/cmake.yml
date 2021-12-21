@@ -34,6 +34,6 @@ jobs:
       with:
         tag_name: Libresprite.latest
         files: |
-          bin/libresprite
-          bin/data/gui.xml
+          build/bin/libresprite
+          build/bin/data/gui.xml
       
