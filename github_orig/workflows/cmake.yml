@@ -1,7 +1,10 @@
 name: CMake
 
 on:
-  - workflow_dispatch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -29,11 +32,5 @@ jobs:
       run: mkdir build
     - name: cmake
       run: cd build && cmake -G Ninja .. && ninja libresprite
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: Libresprite.latest
-        files: |
-          bin/libresprite
-          bin/data/gui.xml
+    
       
