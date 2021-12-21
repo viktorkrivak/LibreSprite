@@ -52,6 +52,7 @@ public:
   const Option& sheetPack() const { return m_sheetPack; }
   const Option& splitLayers() const { return m_splitLayers; }
   const Option& layer() const { return m_layer; }
+  const Option& noLayer() const { return m_no_layer; }
   const Option& allLayers() const { return m_allLayers; }
   const Option& frameTag() const { return m_frameTag; }
   const Option& frameRange() const { return m_frameRange; }
@@ -94,6 +95,7 @@ private:
   Option& m_sheetPack;
   Option& m_splitLayers;
   Option& m_layer;
+  Option& m_no_layer;
   Option& m_allLayers;
   Option& m_frameTag;
   Option& m_frameRange;

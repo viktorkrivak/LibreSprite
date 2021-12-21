@@ -230,6 +230,7 @@ void App::initialize(const AppOptions& options)
     bool listLayers = false;
     bool listTags = false;
     std::string importLayer;
+    std::string noLayer;
     std::string importLayerSaveAs;
     std::string filenameFormat;
     std::string frameTagName;
@@ -300,6 +301,9 @@ void App::initialize(const AppOptions& options)
           importLayer = value.value();
           importLayerSaveAs = value.value();
         }
+	else if(opt == &options.noLayer()) {
+	  noLayer = value.value();
+	}
         // --all-layers
         else if (opt == &options.allLayers()) {
           allLayers = true;
@@ -442,7 +446,12 @@ void App::initialize(const AppOptions& options)
               if (!importLayerSaveAs.empty()) {
                 for (Layer* layer : doc->sprite()->layers())
                   layer->setVisible(layer->name() == importLayerSaveAs);
-              }
+              } else if (!noLayer.empty()) {
+                for (Layer* layer : doc->sprite()->layers()) {
+		  if (layer->name() == noLayer)
+                    layer->setVisible(false);
+		}
+	      }
 
               if (!cropParams.empty())
                 ctx->executeCommand(cropCommand, cropParams);
