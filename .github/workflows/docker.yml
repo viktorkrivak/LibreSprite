@@ -30,4 +30,5 @@ jobs:
           push: true
           context: .
           file: docker/Dockerfile
-          tags: latest
+          tags: |
+            ghcr.io/viktorkrivak/libresprite:latest
