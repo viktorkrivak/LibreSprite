@@ -5,8 +5,12 @@ from io import BytesIO
 from shutil import copyfileobj
 from contextlib import contextmanager
 from json import loads
+from logging import getLogger, DEBUG
+from os.path import getsize
 
 
+LOG = getLogger("server")
+LOG.setLevel(DEBUG)
 app = Flask(__name__)
 
 @contextmanager
@@ -28,6 +32,7 @@ def prepare_params():
 
         f = request.files["upload"]
         f.save(temp.name)
+        LOG.debug(f"Get file {temp.name} with size {getsize(temp.name)}")
         yield ["-b", temp.name] + params
 
 
@@ -40,9 +45,9 @@ def call_libresprite(args):
             converted_args.append(arg.name)
         else:
             raise Exception()
-    print(converted_args)
+    LOG.info(f"Call libresprite with params: {converted_args}")
     result = check_output(converted_args)
-    print(result)
+    LOG.info(f"Libresprite return {result}")
 
 
 @app.route('/save-as', methods=['POST'])
