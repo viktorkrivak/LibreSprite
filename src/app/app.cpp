@@ -609,7 +609,7 @@ void App::initialize(const AppOptions& options)
 	        else if (!noLayer.empty()) {
               for (Layer* layer : doc->sprite()->layers()) {
                   if(layer->isVisible() &&
-                     std::find(noLayer.cbegin(), noLayer.cend(), layer->name()) != noLayer.cend())
+                     std::find(noLayer.cbegin(), noLayer.cend(), layer->name()) == noLayer.cend())
                       m_exporter->addDocument(doc, layer, frameTag);
               }
 	        }
