@@ -75,6 +75,7 @@
 #include "ui/ui.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace app {
 
@@ -230,7 +231,7 @@ void App::initialize(const AppOptions& options)
     bool listLayers = false;
     bool listTags = false;
     std::string importLayer;
-    std::string noLayer;
+    std::vector<std::string> noLayer;
     std::string importLayerSaveAs;
     std::string filenameFormat;
     std::string frameTagName;
@@ -301,9 +302,9 @@ void App::initialize(const AppOptions& options)
           importLayer = value.value();
           importLayerSaveAs = value.value();
         }
-	else if(opt == &options.noLayer()) {
-	  noLayer = value.value();
-	}
+	    else if(opt == &options.noLayer()) {
+	      noLayer = value.values();
+	    }
         // --all-layers
         else if (opt == &options.allLayers()) {
           allLayers = true;
@@ -448,10 +449,10 @@ void App::initialize(const AppOptions& options)
                   layer->setVisible(layer->name() == importLayerSaveAs);
               } else if (!noLayer.empty()) {
                 for (Layer* layer : doc->sprite()->layers()) {
-		  if (layer->name() == noLayer)
-                    layer->setVisible(false);
-		}
-	      }
+                    if (std::find(noLayer.cbegin(), noLayer.cend(), layer->name()) != noLayer.cend())
+                        layer->setVisible(false);
+		            }
+	            }
 
               if (!cropParams.empty())
                 ctx->executeCommand(cropCommand, cropParams);
@@ -604,7 +605,14 @@ void App::initialize(const AppOptions& options)
                 if (layer->isVisible())
                   m_exporter->addDocument(doc, layer, frameTag);
               }
-            }
+            } 
+	        else if (!noLayer.empty()) {
+              for (Layer* layer : doc->sprite()->layers()) {
+                  if(layer->isVisible() &&
+                     std::find(noLayer.cbegin(), noLayer.cend(), layer->name()) != noLayer.cend())
+                      m_exporter->addDocument(doc, layer, frameTag);
+              }
+	        }
             else {
               m_exporter->addDocument(doc, nullptr, frameTag);
             }

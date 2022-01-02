@@ -37,7 +37,8 @@ namespace base {
     public:
       Option(const std::string& name)
         : m_name(name)
-        , m_mnemonic(0) {
+        , m_mnemonic(0),
+          m_multiValue(false) {
       }
       // Getters
       const std::string& name() const { return m_name; }
@@ -46,6 +47,7 @@ namespace base {
       const std::string& getValueName() const { return m_valueName; }
       char mnemonic() const { return m_mnemonic; }
       bool doesRequireValue() const { return !m_valueName.empty(); }
+      bool canHaveMultiValue() const { return m_multiValue; }
       // Setters
       Option& alias(const std::string& alias) { m_alias = alias; return *this; }
       Option& description(const std::string& desc) { m_description = desc; return *this; }
@@ -54,13 +56,14 @@ namespace base {
         m_valueName = valueName;
         return *this;
       }
+      Option& multiValue() { m_multiValue = true; return *this; }
     private:
       std::string m_name;        // Name of the option (e.g. "help" for "--help")
       std::string m_alias;
       std::string m_description; // Description of the option (this can be used when the help is printed).
       std::string m_valueName;   // Empty if this option doesn't require a value, or the name of the expected value.
       char m_mnemonic;           // One character that can be used in the command line to use this option.
-
+      bool m_multiValue;
       friend class ProgramOptions;
     };
 
@@ -68,13 +71,22 @@ namespace base {
     public:
       Value(Option* option, const std::string& value)
         : m_option(option)
-        , m_value(value) {
+        , m_value({value}) {
       }
       const Option* option() const { return m_option; }
-      const std::string& value() const { return m_value; }
+      const std::string& value() const { return m_value[0]; }
+      const std::vector<std::string>& values() const { return m_value; }
+      bool operator<(const Value &b) const {
+          if (!m_option)
+              return true;
+          else if (!b.m_option)
+              return false;
+          return  m_option->m_name < b.m_option->m_name;
+      }
+      void addValue(const std::string &value) { m_value.push_back(value); }
     private:
       Option* m_option;
-      std::string m_value;
+      std::vector<std::string> m_value;
     };
 
     typedef std::vector<Option*> OptionList;

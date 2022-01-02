@@ -152,8 +152,18 @@ void ProgramOptions::parse(int argc, const char* argv[])
             optionValue = argv[++i];
           }
         }
-
-        m_values.push_back(Value(option, optionValue));
+        if(option->canHaveMultiValue()) {
+            ValueList::iterator optionIter = std::find_if(m_values.begin(), m_values.end(), [option](const Value &i) {
+                return i.option() == option;
+            });
+            if(optionIter == m_values.end())
+                m_values.push_back(Value(option, optionValue));
+            else {
+                optionIter->addValue(optionValue);
+            }
+        }
+        else
+            m_values.push_back(Value(option, optionValue));
       }
     }
     // Add values without a related option.
