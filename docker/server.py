@@ -32,7 +32,7 @@ def prepare_params(export_params):
         f = request.files["upload"]
         f.save(temp.name)
         app.logger.debug(f"Get file {temp.name} with size {getsize(temp.name)}")
-        yield ["-b", temp.name] + params + export_params
+        yield ["-b"] + params + [ temp.name ] + export_params
 
 
 def call_libresprite(args):
