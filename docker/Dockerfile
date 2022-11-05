@@ -10,7 +10,7 @@ RUN cd /root/build && make libresprite
 
 FROM debian:bullseye-slim
 RUN mkdir -p /opt/libresprite && apt-get update && \
-DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install libcurl3-gnutls libxcb1 libsdl2-2.0-0 libsdl2-image-2.0-0 libpixman-1-0 libtinyxml2.6.2v5 libgif7 liblua5.4-0 libnode72 libfreetype6 python3-minimal python3-flask
+DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install libcurl3-gnutls libxcb1 libsdl2-2.0-0 libsdl2-image-2.0-0 libpixman-1-0 libtinyxml2.6.2v5 libgif7 liblua5.4-0 libnode72 libfreetype6 python3-minimal python3-flask python3-requests-toolbelt
 COPY docker/server.py /opt/server.py
 COPY --from=builder /root/build/bin/libresprite /opt/libresprite
 COPY --from=builder /root/build/bin/data /opt/libresprite/data
