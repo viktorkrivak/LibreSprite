@@ -4,9 +4,11 @@ from tempfile import NamedTemporaryFile
 from io import BytesIO
 from shutil import copyfileobj
 from contextlib import contextmanager
-from json import loads
+from json import loads, dumps
+from json.decoder import JSONDecodeError
 from logging import basicConfig as log_config, DEBUG
 from os.path import getsize
+from requests_toolbelt import MultipartEncoder
 
 
 log_config(level=DEBUG)
@@ -47,23 +49,22 @@ def call_libresprite(args):
     app.logger.info(f"Call libresprite with params: {converted_args}")
     result = check_output(converted_args)
     lines = result.decode().splitlines(keepends=False)
-    while lines and lines[0].strip() != "{":
+    while lines and  not lines[0].strip().startswith("{"):
         lines = lines[1:]
-    app.logger.info(f"Lines {lines}")
     try:
         data = loads("".join(lines))
         return data
-    except Exception:
-        raise
+    except JSONDecodeError:
+        app.logger.error(f"Cannot parse: {lines}")
     # app.logger.info(f"Libresprite return {result}")
 
 
 @app.route('/save-as', methods=['POST'])
 def save_as():
     result = {
-        "obj": BytesIO(),
-        "name": "output.png"
-    }
+            "obj": BytesIO(),
+            "name": "output.png"
+            }
     with NamedTemporaryFile(suffix=".png") as temp:
         with prepare_params(["--save-as", temp]) as params:
             call_libresprite(params)
@@ -76,12 +77,14 @@ def save_as():
 @app.route('/sheet', methods=['POST'])
 def sheet():
     result = {
-        "obj": BytesIO(),
-        "name": "output.png"
-    }
+            "obj": BytesIO(),
+            "name": "output.png"
+            }
     with NamedTemporaryFile(suffix=".png") as temp:
         with prepare_params(["--sheet", temp]) as params:
-            call_libresprite( params )
+            data = call_libresprite( params )
             copyfileobj(temp, result["obj"])
     result["obj"].seek(0)
-    return send_file(result["obj"], as_attachment=True, attachment_filename=result["name"])
+    multipart = MultipartEncoder(fields={"description": ("data.json", dumps(data), "application/json"), "image": ("result.png", result["obj"], "image/png")})
+    return multipart.to_string(), {'Content-Type': multipart.content_type}
+    # return send_file(result["obj"], as_attachment=True, attachment_filename=result["name"])
